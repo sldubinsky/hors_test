@@ -138,6 +138,9 @@
 			<Document>РеализацияТовара</Document>
 			<Report>КоличествоДнейОтсутствияТовара</Report>
 			<Report>ЦеныПродажи</Report>
+			<InformationRegister>ЦеныНоменклатуры</InformationRegister>
+			<AccumulationRegister>ОстаткиТоваров</AccumulationRegister>
+			<AccumulationRegister>Продажи</AccumulationRegister>
 		</ChildObjects>
 	</Configuration>
 </MetaDataObject>
