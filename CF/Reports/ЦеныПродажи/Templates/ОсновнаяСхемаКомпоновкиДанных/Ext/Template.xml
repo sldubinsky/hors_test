@@ -77,6 +77,16 @@
 			</v8:item>
 		</title>
 	</calculatedField>
+	<calculatedField>
+		<dataPath>ДействующаяЦена</dataPath>
+		<expression>Отчеты.ЦеныПродажи.ПолучитьДействующуюЦену(Период, Контрагент, Номенклатура)</expression>
+		<title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Действующая цена</v8:content>
+			</v8:item>
+		</title>
+	</calculatedField>
 	<parameter>
 		<name>НачалоПериода</name>
 		<title xsi:type="v8:LocalStringType">
@@ -129,6 +139,9 @@
 				</dcsset:item>
 				<dcsset:item xsi:type="dcsset:SelectedItemField">
 					<dcsset:field>СуммаПродажи</dcsset:field>
+				</dcsset:item>
+				<dcsset:item xsi:type="dcsset:SelectedItemField">
+					<dcsset:field>ДействующаяЦена</dcsset:field>
 				</dcsset:item>
 			</dcsset:selection>
 			<dcsset:filter>

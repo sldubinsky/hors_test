@@ -131,6 +131,7 @@
 		<ChildObjects>
 			<Language>Русский</Language>
 			<Subsystem>HORS</Subsystem>
+			<CommonModule>СлужебныеФункции</CommonModule>
 			<Catalog>Контрагенты</Catalog>
 			<Catalog>Номенклатура</Catalog>
 			<Document>УстановкаЦен</Document>
