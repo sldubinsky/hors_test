@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DataCompositionSchema xmlns="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcscom="http://v8.1c.ru/8.1/data-composition-system/common" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<dataSource>
+		<name>ИсточникДанных1</name>
+		<dataSourceType>Local</dataSourceType>
+	</dataSource>
+	<dataSet xsi:type="DataSetQuery">
+		<name>НаборДанных1</name>
+		<field xsi:type="DataSetFieldField">
+			<dataPath>КоличествоДнейОтсутствия</dataPath>
+			<field>КоличествоДнейОтсутствия</field>
+			<title xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Количество дней отсутствия</v8:content>
+				</v8:item>
+			</title>
+		</field>
+		<field xsi:type="DataSetFieldField">
+			<dataPath>Номенклатура</dataPath>
+			<field>Номенклатура</field>
+			<title xsi:type="v8:LocalStringType">
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Номенклатура</v8:content>
+				</v8:item>
+			</title>
+		</field>
+		<dataSource>ИсточникДанных1</dataSource>
+		<query>ВЫБРАТЬ
+	СправочникНоменклатура.Ссылка КАК Ссылка,
+	ЕСТЬNULL(ОстаткиТоваровОстаткиИОбороты.ОстатокКонечныйОстаток, 0) КАК ОстатокКонечныйОстаток,
+	ЕСТЬNULL(ОстаткиТоваровОстаткиИОбороты.Период, &amp;ДатаНачала) КАК Период
+ПОМЕСТИТЬ ВТ_ОстаткиПоДням
+ИЗ
+	Справочник.Номенклатура КАК СправочникНоменклатура
+		ЛЕВОЕ СОЕДИНЕНИЕ РегистрНакопления.ОстаткиТоваров.ОстаткиИОбороты(НАЧАЛОПЕРИОДА(&amp;ДатаНачала, ДЕНЬ), КОНЕЦПЕРИОДА(&amp;ДатаНачала, ДЕНЬ), День, ДвиженияИГраницыПериода, ) КАК ОстаткиТоваровОстаткиИОбороты
+		ПО СправочникНоменклатура.Ссылка = ОстаткиТоваровОстаткиИОбороты.Номенклатура
+
+ОБЪЕДИНИТЬ
+
+ВЫБРАТЬ
+	СправочникНоменклатура.Ссылка,
+	ЕСТЬNULL(ОстаткиТоваровОстаткиИОбороты.ОстатокКонечныйОстаток, 0),
+	ЕСТЬNULL(ОстаткиТоваровОстаткиИОбороты.Период, &amp;ДатаОкончания)
+ИЗ
+	Справочник.Номенклатура КАК СправочникНоменклатура
+		ЛЕВОЕ СОЕДИНЕНИЕ РегистрНакопления.ОстаткиТоваров.ОстаткиИОбороты(НАЧАЛОПЕРИОДА(&amp;ДатаОкончания, ДЕНЬ), КОНЕЦПЕРИОДА(&amp;ДатаОкончания, ДЕНЬ), День, ДвиженияИГраницыПериода, ) КАК ОстаткиТоваровОстаткиИОбороты
+		ПО СправочникНоменклатура.Ссылка = ОстаткиТоваровОстаткиИОбороты.Номенклатура
+
+ОБЪЕДИНИТЬ
+
+ВЫБРАТЬ
+	СправочникНоменклатура.Ссылка,
+	ЕСТЬNULL(ОстаткиТоваровОстаткиИОбороты.ОстатокКонечныйОстаток, 0),
+	ЕСТЬNULL(ОстаткиТоваровОстаткиИОбороты.Период, &amp;ДатаОкончания)
+ИЗ
+	Справочник.Номенклатура КАК СправочникНоменклатура
+		ЛЕВОЕ СОЕДИНЕНИЕ РегистрНакопления.ОстаткиТоваров.ОстаткиИОбороты(&amp;ДатаНачала, &amp;ДатаОкончания, День, ДвиженияИГраницыПериода, ) КАК ОстаткиТоваровОстаткиИОбороты
+		ПО СправочникНоменклатура.Ссылка = ОстаткиТоваровОстаткиИОбороты.Номенклатура
+;
+
+////////////////////////////////////////////////////////////////////////////////
+ВЫБРАТЬ
+	ВТ_ОстаткиПоДням.Ссылка КАК Ссылка,
+	ВТ_ОстаткиПоДням.Период КАК КонецИнтервала,
+	МАКСИМУМ(ВТ_ОстаткиПоДням1.Период) КАК НачалоИнтервала
+ПОМЕСТИТЬ ВТ_ИнтервалыОстатков
+ИЗ
+	ВТ_ОстаткиПоДням КАК ВТ_ОстаткиПоДням
+		ВНУТРЕННЕЕ СОЕДИНЕНИЕ ВТ_ОстаткиПоДням КАК ВТ_ОстаткиПоДням1
+		ПО ВТ_ОстаткиПоДням.Ссылка = ВТ_ОстаткиПоДням1.Ссылка
+			И (ВТ_ОстаткиПоДням1.Период &lt; ВТ_ОстаткиПоДням.Период)
+
+СГРУППИРОВАТЬ ПО
+	ВТ_ОстаткиПоДням.Ссылка,
+	ВТ_ОстаткиПоДням.Период
+;
+
+////////////////////////////////////////////////////////////////////////////////
+ВЫБРАТЬ
+	ВТ_ИнтервалыОстатков.Ссылка КАК Номенклатура,
+	СУММА(РАЗНОСТЬДАТ(ВТ_ИнтервалыОстатков.НачалоИнтервала, ВТ_ИнтервалыОстатков.КонецИнтервала, ДЕНЬ)) КАК КоличествоДнейОтсутствия
+{ВЫБРАТЬ
+	Номенклатура.*,
+	КоличествоДнейОтсутствия КАК КоличествоДнейОтсутствия}
+ИЗ
+	ВТ_ИнтервалыОстатков КАК ВТ_ИнтервалыОстатков
+		ВНУТРЕННЕЕ СОЕДИНЕНИЕ ВТ_ОстаткиПоДням КАК ВТ_ОстаткиПоДням
+		ПО ВТ_ИнтервалыОстатков.Ссылка = ВТ_ОстаткиПоДням.Ссылка
+			И ВТ_ИнтервалыОстатков.НачалоИнтервала = ВТ_ОстаткиПоДням.Период
+ГДЕ
+	ВТ_ОстаткиПоДням.ОстатокКонечныйОстаток = 0
+{ГДЕ
+	ВТ_ОстаткиПоДням.Ссылка.* КАК Номенклатура}
+
+СГРУППИРОВАТЬ ПО
+	ВТ_ИнтервалыОстатков.Ссылка</query>
+		<autoFillFields>false</autoFillFields>
+	</dataSet>
+	<parameter>
+		<name>ДатаНачала</name>
+		<title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Дата начала</v8:content>
+			</v8:item>
+		</title>
+		<valueType>
+			<v8:Type>xs:dateTime</v8:Type>
+			<v8:DateQualifiers>
+				<v8:DateFractions>DateTime</v8:DateFractions>
+			</v8:DateQualifiers>
+		</valueType>
+		<value xsi:type="xs:dateTime">0001-01-01T00:00:00</value>
+		<useRestriction>true</useRestriction>
+		<expression>&amp;Период.ДатаНачала</expression>
+	</parameter>
+	<parameter>
+		<name>ДатаОкончания</name>
+		<title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Дата окончания</v8:content>
+			</v8:item>
+		</title>
+		<valueType>
+			<v8:Type>xs:dateTime</v8:Type>
+			<v8:DateQualifiers>
+				<v8:DateFractions>DateTime</v8:DateFractions>
+			</v8:DateQualifiers>
+		</valueType>
+		<value xsi:type="xs:dateTime">0001-01-01T00:00:00</value>
+		<useRestriction>true</useRestriction>
+		<expression>&amp;Период.ДатаОкончания</expression>
+	</parameter>
+	<parameter>
+		<name>Период</name>
+		<title xsi:type="v8:LocalStringType">
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Период</v8:content>
+			</v8:item>
+		</title>
+		<valueType>
+			<v8:Type>v8:StandardPeriod</v8:Type>
+		</valueType>
+		<value xsi:type="v8:StandardPeriod">
+			<v8:variant xsi:type="v8:StandardPeriodVariant">Custom</v8:variant>
+			<v8:startDate>0001-01-01T00:00:00</v8:startDate>
+			<v8:endDate>0001-01-01T00:00:00</v8:endDate>
+		</value>
+		<useRestriction>false</useRestriction>
+	</parameter>
+	<settingsVariant>
+		<dcsset:name>Основной</dcsset:name>
+		<dcsset:presentation xsi:type="xs:string">Основной</dcsset:presentation>
+		<dcsset:settings xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows">
+			<dcsset:selection>
+				<dcsset:item xsi:type="dcsset:SelectedItemField">
+					<dcsset:field>Номенклатура</dcsset:field>
+				</dcsset:item>
+				<dcsset:item xsi:type="dcsset:SelectedItemField">
+					<dcsset:field>КоличествоДнейОтсутствия</dcsset:field>
+				</dcsset:item>
+			</dcsset:selection>
+			<dcsset:filter>
+				<dcsset:item xsi:type="dcsset:FilterItemComparison">
+					<dcsset:use>false</dcsset:use>
+					<dcsset:left xsi:type="dcscor:Field">Номенклатура</dcsset:left>
+					<dcsset:comparisonType>Equal</dcsset:comparisonType>
+					<dcsset:userSettingID>70dd8cae-8af7-483f-9f48-2754aaecfacc</dcsset:userSettingID>
+				</dcsset:item>
+			</dcsset:filter>
+			<dcsset:dataParameters>
+				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+					<dcscor:parameter>Период</dcscor:parameter>
+					<dcscor:value xsi:type="v8:StandardPeriod">
+						<v8:variant xsi:type="v8:StandardPeriodVariant">Custom</v8:variant>
+						<v8:startDate>0001-01-01T00:00:00</v8:startDate>
+						<v8:endDate>0001-01-01T00:00:00</v8:endDate>
+					</dcscor:value>
+					<dcsset:userSettingID>6fe3ba64-3964-4167-bf23-21b3e5292b74</dcsset:userSettingID>
+				</dcscor:item>
+			</dcsset:dataParameters>
+			<dcsset:order>
+				<dcsset:item xsi:type="dcsset:OrderItemField">
+					<dcsset:field>Номенклатура.Наименование</dcsset:field>
+					<dcsset:orderType>Asc</dcsset:orderType>
+				</dcsset:item>
+			</dcsset:order>
+			<dcsset:item xsi:type="dcsset:StructureItemGroup">
+				<dcsset:order>
+					<dcsset:item xsi:type="dcsset:OrderItemAuto"/>
+				</dcsset:order>
+				<dcsset:selection>
+					<dcsset:item xsi:type="dcsset:SelectedItemAuto"/>
+				</dcsset:selection>
+			</dcsset:item>
+		</dcsset:settings>
+	</settingsVariant>
+</DataCompositionSchema>
