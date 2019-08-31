@@ -15,11 +15,12 @@
 			<ContextMenu name="ОбрабатываемоеЧислоКонтекстноеМеню" id="2"/>
 			<ExtendedTooltip name="ОбрабатываемоеЧислоРасширеннаяПодсказка" id="3"/>
 		</InputField>
-		<LabelField name="ЧислоПрописью" id="6">
+		<TextDocumentField name="ЧислоПрописью" id="6">
 			<DataPath>ЧислоПрописью</DataPath>
+			<Enabled>false</Enabled>
 			<ContextMenu name="ЧислоПрописьюКонтекстноеМеню" id="7"/>
 			<ExtendedTooltip name="ЧислоПрописьюРасширеннаяПодсказка" id="8"/>
-		</LabelField>
+		</TextDocumentField>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="Объект" id="1">
